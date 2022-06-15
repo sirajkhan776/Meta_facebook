@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load cart %}
+{% block content %}
+<div class="container my-3">
+    <table class= "table">
+        <tr>
+            <th>Sno.</th>
+            <th>Product Image</th>
+            <th>Product Name</th>
+            <th>Product Price </th>
+            <th>Quantity</th>
+            <th>Total Price</th>
+            <th>Status</th>
+        </tr>
+        {% for pro in fetch_order_dtl  %}
+
+            <tr>
+                <td>{{forloop.counter}}</td>
+                <td><img src="{{pro.product.img_path.url}}" alt="" height = 100></td>
+                <td>{{pro.product.pro_name}}</td>
+                <td>{{pro.price|currency}}</td>
+                <td>{{pro.quantity}}</td>
+                <td>{{pro.price|order_amount:pro.quantity|currency}}</td>
+                {% if pro.status %}
+                <td class="badge text-bg-success my-3">Accept</td>
+                {% else %}
+                <td class="badge text-bg-warning my-3">Pending</td>
+
+                {% endif %}
+                
+            
+            
+            </tr>
+            {% endfor %}
+            <tr >
+              <td  class ="text-center" colspan = 6>
+                  <h2>
+                      Total payable amount
+                  </h2>
+              </td>
+                <td>
+                   <h2>
+                        {{tp|currency}}
+                   </h2> 
+                </td>
+            </tr>
+
+    </table>
+     <div id="paypal-button-container" style ="float:right"></div>
+
+
+</div>
+
+ <script src="https://www.paypal.com/sdk/js?client-id=AUsEq6erAD5mAtPGXdu15x26lCjcb7BMQrZRbFv-gtMlkUaLFcE7A5pFjq5rGYLB8zchvyafl9GkM6Cw&currency=USD"></script>
+ <script>
+
+      paypal.Buttons({
+
+        // Sets up the transaction when a payment button is clicked
+
+        createOrder: (data, actions) => {
+
+          return actions.order.create({
+
+            purchase_units: [{
+
+              amount: {
+
+                value: {{tp}} // Can also reference a variable or function
+
+              }
+
+            }]
+
+          });
+
+        },
+
+        // Finalize the transaction after payer approval
+
+        onApprove: (data, actions) => {
+
+          return actions.order.capture().then(function(orderData) {
+
+            // Successful capture! For dev/demo purposes:
+
+            console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
+
+            const transaction = orderData.purchase_units[0].payments.captures[0];
+
+            alert(`Transaction ${transaction.status}: ${transaction.id}\n\nSee console for all available details`);
+
+            // When ready to go live, remove the alert and show a success message within this page. For example:
+
+            // const element = document.getElementById('paypal-button-container');
+
+            // element.innerHTML = '<h3>Thank you for your payment!</h3>';
+
+            // Or go to another URL:  actions.redirect('thank_you.html');
+
+          });
+
+        }
+
+      }).render('#paypal-button-container');
+
+    </script>
+{% endblock content %}

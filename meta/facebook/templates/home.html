@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load cart %}
+ {% load static %} 
+ {% block title %} Home {% endblock title %} {% block content %}
+
+
+<div class="container my-3 border">
+    <div class="row  mx-auto">
+
+        <div class="col-lg-3">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+  Category
+  </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                    {% for cate_dtl in cat %}
+                    <li><a class="dropdown-item" href="?category={{cate_dtl.id}}">{{cate_dtl.name}}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-9 d-flex mx-auto">
+            {% for pro_dtl in pro %}
+            <div class="card mx-3" style="width: 16rem; height:100">
+                <img src="{{pro_dtl.img_path.url}}" class="card-img-top" alt="..." height=125>
+                <div class="card-body">
+                    <h5 class="card-title">{{pro_dtl.pro_name}}</h5>
+                    {% comment %} <p class="card-text">{{pro_dtl.desc}}</p> {% endcomment %}
+                    <p class="card-text">Rs.{{pro_dtl.price}}</p>
+                    {% comment %} <a href="#" class="btn btn-primary">Add To Cart </a> {% endcomment %}
+                </div>
+                 <div class="card-footer row no-gutter">
+                {% if  pro_dtl|isexitincart:request.session.cart %}
+                
+                
+                <div class="row">
+                   
+                <form action="#{{pro_dtl.id}}" method = "post" class = "col-2" >
+                        {% csrf_token %}
+                        <input type="text" name = "cartid" value = {{pro_dtl.id}} hidden >
+                        <input type="text" name = "minus" value = {{pro_dtl.id}} hidden >
+                        <button type="submit" class="btn btn-primary">-</button>
+                    </form> 
+                    
+                    <div class = "text-center col">
+                       {{pro_dtl|cartquantity:request.session.cart}}
+                    </div>
+                        <form action="#{{pro_dtl.id}}" method = "post" class="col-2" >
+                        {% csrf_token %}
+                        <input type="text" name = "cartid" value = {{pro_dtl.id}} hidden >
+                        <button type="submit" class="btn btn-primary">+</button>
+                    </form> 
+                    </div>
+                {% else %}
+                 
+                    <form action="#{{pro_dtl.id}}" method = "post" >
+                        {% csrf_token %}
+                        <input type="text" name = "cartid" value = {{pro_dtl.id}} hidden>
+                        <button type="submit" class="btn btn-primary  btn-block form-control">Add to cart</button>
+                    </form> 
+                  
+                {% endif %}
+                 </div>
+
+                 
+
+
+
+                
+
+
+            </div>
+
+            {% endfor %}
+        </div>
+
+
+    </div>
+</div>
+
+{% endblock content %}
